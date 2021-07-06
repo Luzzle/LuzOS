@@ -11,8 +11,8 @@
 init_screen:
     mov ax, 0002h ; clear the a reg
     int 10h
-    ; ah = 0: set video mode
-    ; al = 0: video mode 00h (shown above)
+    ; ah = 00: set video mode
+    ; al = 02: video mode 02h (shown above)
 
     mov ah, 0Bh
     mov bl, CLR_RED
