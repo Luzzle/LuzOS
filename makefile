@@ -2,17 +2,17 @@ SRCDIR := src
 BUILDDIR := bin
 
 CC := i686-elf-gcc
-CFLAGS := -Wall -Wextra -ffreestanding -masm=intel
+CFLAGS := -Wall -Wextra -ffreestanding -masm=intel -g
 C_FILES := $(shell find $(SRCDIR) -type f -name "*.c")
 C_OBJS := $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(C_FILES))
 
 AC := nasm
 AFLAGS := -f elf32
 BOOT_OBJ := $(BUILDDIR)/boot.o
-ISR_OBJ := $(BUILDDIR)/isr.o
+INT_OBJ := $(BUILDDIR)/interrupts.o
 
 
-OBJS := $(BOOT_OBJ) $(ISR_OBJ) $(C_OBJS)
+OBJS := $(BOOT_OBJ) $(INT_OBJ) $(C_OBJS)
 
 LD := i686-elf-ld
 LD_FILE := linker.ld
@@ -29,10 +29,10 @@ $(BOOT_OBJ): $(SRCDIR)/boot.asm
 	@echo "Assembling boot loader"
 	@$(AC) $(AFLAGS) -o $@ $(SRCDIR)/boot.asm
 	
-$(ISR_OBJ): $(SRCDIR)/isr.asm
+$(INT_OBJ): $(SRCDIR)/interrupts.asm
 	@mkdir -p $(dir $@)
 	@echo "Assembling interrupt stubs"
-	@$(AC) $(AFLAGS) -o $@ $(SRCDIR)/isr.asm
+	@$(AC) $(AFLAGS) -o $@ $(SRCDIR)/interrupts.asm
 
 	
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
@@ -50,7 +50,10 @@ $(IMG): $(BIN)
 	@dd if=$(BIN) of=$(IMG) conv=notrunc 2>/dev/null
 
 run: $(IMG)
-	@qemu-system-i386 -drive file=$(IMG),format=raw
+	@qemu-system-i386 -drive file=$(IMG),format=raw -m 4G
+
+debug: $(IMG)
+	@qemu-system-i386 -drive file=$(IMG),format=raw -m 4G -s -S
 
 clean:
 	@rm -rf $(BUILDDIR)/*

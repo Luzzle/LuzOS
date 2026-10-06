@@ -1,3 +1,7 @@
+; ================
+; boot.c - Bootloader
+; ================
+
 bits 16
 global start
 extern kmain
@@ -155,12 +159,13 @@ remap_pic:
     out PIC1_DATA, al
     out PIC2_DATA, al
     
+    ; Unmask keyboard interrupt
     mov al, 0xFD
     out PIC1_DATA, al
 
     mov al, 0xFF
     out PIC2_DATA, al
-
+    
     pop ax
     ret   
 
