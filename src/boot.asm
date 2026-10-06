@@ -1,8 +1,11 @@
 bits 16
 global start
 extern kmain
+extern setup_idt
 
 section .text
+
+; ==== BOOTLOADER ENTRY ====
 
 start:
     ; INIT REGISTERS
@@ -50,6 +53,8 @@ start:
     mov cr0, eax
     jmp CODE_SEG:pm_start
 
+; ==== Disk Routines ====
+
 disk_success:
     ; Print S to screen
     mov al, 'S'
@@ -64,6 +69,8 @@ disk_error:
     int 10h 
 
     jmp $
+
+; === GDT CONFIGURATION ====
 
 gdt_start:
     dq 0 ; Null Desc
@@ -95,6 +102,8 @@ gdt_descriptor:
     dw gdt_end - gdt_start - 1  ; Size (limit) of GDT
     dd gdt_start                ; Base address of GDT
 
+; ==== 32 BIT STARTS HERE ====
+
 bits 32
 pm_start:
     mov ax, DATA_SEG
@@ -106,7 +115,54 @@ pm_start:
     mov esp, 7C00h
     cld
 
+    call remap_pic
+    call setup_idt
+
     jmp kmain ; Jump to kernal
+
+; ==== PIC CONFIGURATION ====
+PIC1_COMMAND    equ 0x20
+PIC1_DATA       equ 0x21
+PIC2_COMMAND    equ 0xA0
+PIC2_DATA       equ 0xA1
+
+ICW1_INIT       equ 0x11
+ICW4_8086       equ 0x01
+
+remap_pic:
+    push ax
+
+    ; Init PIC1 and PIC2
+    mov al, ICW1_INIT
+    out PIC1_COMMAND, al
+    out PIC2_COMMAND, al
+
+    ; Setup vector offsets
+    mov al, 0x20
+    out PIC1_DATA, al
+
+    mov al, 0x28
+    out PIC2_DATA, al
+    
+    ; Configure PIC Cascading
+    mov al, 0x04
+    out PIC1_DATA, al
+
+    mov al, 0x02
+    out PIC2_DATA, al
+
+    mov al, ICW4_8086
+    out PIC1_DATA, al
+    out PIC2_DATA, al
+    
+    mov al, 0xFD
+    out PIC1_DATA, al
+
+    mov al, 0xFF
+    out PIC2_DATA, al
+
+    pop ax
+    ret   
 
 times 510 - ( $ - $$ ) db 0x90
 dw 0xAA55

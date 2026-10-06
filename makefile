@@ -9,8 +9,10 @@ C_OBJS := $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(C_FILES))
 AC := nasm
 AFLAGS := -f elf32
 BOOT_OBJ := $(BUILDDIR)/boot.o
+ISR_OBJ := $(BUILDDIR)/isr.o
 
-OBJS := $(BOOT_OBJ) $(C_OBJS)
+
+OBJS := $(BOOT_OBJ) $(ISR_OBJ) $(C_OBJS)
 
 LD := i686-elf-ld
 LD_FILE := linker.ld
@@ -26,6 +28,12 @@ $(BOOT_OBJ): $(SRCDIR)/boot.asm
 	@mkdir -p $(dir $@)
 	@echo "Assembling boot loader"
 	@$(AC) $(AFLAGS) -o $@ $(SRCDIR)/boot.asm
+	
+$(ISR_OBJ): $(SRCDIR)/isr.asm
+	@mkdir -p $(dir $@)
+	@echo "Assembling interrupt stubs"
+	@$(AC) $(AFLAGS) -o $@ $(SRCDIR)/isr.asm
+
 	
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(dir $@)

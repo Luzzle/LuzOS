@@ -1,5 +1,12 @@
 // Kernel Entry
+#include "interrupts/interrupts.h"
+
 void kmain(){
-    volatile char* vga_loc = (volatile char*)0xB8000;
-    *vga_loc = 'C';
+
+    setup_idt();
+
+    while (1);
+
+    long a = 10 / 0; // test div by 0
+
 }
