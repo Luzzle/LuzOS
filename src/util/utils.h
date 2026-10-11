@@ -1,5 +1,5 @@
 // ================
-// utils.h - Utilities Header
+// utils.h - Utilities and Types Header
 // ================
 
 #ifndef UTILS_H 

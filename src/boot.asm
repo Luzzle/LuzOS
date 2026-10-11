@@ -15,7 +15,7 @@ start:
     ; INIT REGISTERS
     xor ax, ax
     mov sp, 7C00h   
-
+    
     mov al, '1'
     mov ah, 0eh
     int 10h
@@ -46,8 +46,9 @@ start:
     jc disk_error
     call disk_success
 
+    ; Set video mode 3
     mov ah, 00
-    mov al, 03h 
+    mov al, 03h
     int 10h
     
     cli ; disable interrupts

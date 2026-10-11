@@ -3,7 +3,9 @@
 ; ================
 
 global load_idt
+
 global isr_de
+global isr_kb
 
 load_idt:
     mov eax, [esp + 4]
@@ -22,3 +24,11 @@ isr_de:
     popad
     iret
 
+extern isr_kb_handler
+
+isr_kb:
+    pushad
+    cld
+    call isr_kb_handler
+    popad
+    iret

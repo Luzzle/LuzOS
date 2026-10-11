@@ -1,5 +1,5 @@
 // ================
-// idt.c - Interrupt Description Table Header
+// idt.h - Interrupt Description Table Header
 // ================
 
 #ifndef IDT_H 
